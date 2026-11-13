@@ -31,6 +31,9 @@ const formBuilderSlice = createSlice({
         markClean(state) {
             state.isDirty = false;
         },
+        markDirty(state) {
+            state.isDirty = true;
+        },
 
         updateForm(state, { payload }: PayloadAction<{ title?: string; description?: string }>) {
             Object.assign(state.formConfig, payload);
@@ -129,7 +132,7 @@ const formBuilderSlice = createSlice({
 });
 
 export const {
-    loadForm, resetForm, navigate, markClean,
+    loadForm, resetForm, navigate, markClean, markDirty,
     updateForm,
     addStep, updateStep, removeStep,
     addSection, updateSection, removeSection,

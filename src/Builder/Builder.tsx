@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import { Loader2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/useRedux';
-import { loadForm, resetForm, markClean } from '../store/formBuilderSlice';
+import { loadForm, resetForm, markClean, markDirty } from '../store/formBuilderSlice';
 import { useFormById } from '../hooks/useFormQueries';
 import { useCreateForm, useUpdateForm } from '../hooks/useFormMutations';
 import { createEmptyForm } from '../helpers/utils';
@@ -17,6 +17,7 @@ export default function Builder() {
     const dispatch = useAppDispatch();
 
     const isEditMode = Boolean(id);
+    const location = useLocation();
     const { data: existingForm, isLoading } = useFormById(id);
     const { formConfig } = useAppSelector((state) => state.formBuilder);
 
@@ -31,7 +32,8 @@ export default function Builder() {
             dispatch(loadForm(existingForm));
             setInitialized(true);
         } else if (!isEditMode && !initialized) {
-            dispatch(loadForm(createEmptyForm()));
+            dispatch(loadForm(location.state?.template ? structuredClone(location.state.template) : createEmptyForm()));
+            dispatch(markDirty());
             setInitialized(true);
         }
     }, [isEditMode, existingForm, initialized, dispatch]);

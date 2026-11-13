@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Plus, FileText, Loader2, Search, LayoutGrid, FileStack, Radio, Inbox } from 'lucide-react';
 import { useModal, openAlertDialog } from '../lib/ui';
 import { useForms } from '../hooks/useFormQueries';
-import { useCreateForm, useDeleteForm, useDuplicateForm, useToggleFormStatus } from '../hooks/useFormMutations';
+import { useDeleteForm, useDuplicateForm, useToggleFormStatus } from '../hooks/useFormMutations';
 import AppHeader from '../components/AppHeader';
 import FormCard from './FormCard';
 import TemplateDialog from './TemplateDialog';
@@ -18,15 +18,13 @@ export default function Dashboard() {
     const [filter, setFilter] = useState<Filter>('all');
 
     const { data: forms, isLoading, error } = useForms();
-    const createForm = useCreateForm();
     const deleteForm = useDeleteForm();
     const duplicateForm = useDuplicateForm();
     const toggleStatus = useToggleFormStatus();
 
     const handleCreate = (template: FormTemplate) => {
-        createForm.mutate(template.config, {
-            onSuccess: (form) => { modal.close(); navigate(`/${form.id}/edit`); },
-        });
+        modal.close();
+        navigate("/new", { state: { template: template.config } });
     };
 
     const handleDelete = (id: string) => {
@@ -38,7 +36,7 @@ export default function Dashboard() {
         });
     };
 
-    const openTemplateDialog = () => modal.open(<TemplateDialog onCreate={handleCreate} isLoading={createForm.isPending} />);
+    const openTemplateDialog = () => modal.open(<TemplateDialog onCreate={handleCreate} />);
 
     const stats = useMemo(() => {
         const list = forms ?? [];
