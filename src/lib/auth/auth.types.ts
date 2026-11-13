@@ -9,23 +9,13 @@ export interface RegisterData {
     email: string;
     password: string;
     confirmPassword: string;
-    securityQuestion: string;
-    securityAnswer: string;
 }
 
 export interface LoginData {
-    username: string;
+    email: string;
     password: string;
 }
 
-export interface ChangePasswordData {
-    username: string;
-    securityAnswer: string;
-    newPassword: string;
-    confirmPassword: string;
-}
-
-export interface AccessTokens {
-    accessToken: string;
-    refreshToken: string;
+export interface ResetPasswordData {
+    email: string;
 }

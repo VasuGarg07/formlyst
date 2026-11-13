@@ -21,8 +21,8 @@ export function UserMenu({
     const dispatch = useAuthDispatch();
     const { isLoggedIn, user } = useAuthSelector((state) => state.auth);
 
-    const handleLogout = () => {
-        dispatch(logoutThunk() as any);
+    const handleLogout = async () => {
+        await dispatch(logoutThunk() as any);
         navigate('/');
         setOpen(false);
     };

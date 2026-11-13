@@ -1,37 +1,28 @@
-import { KeyRound, KeySquare, Mail, User } from 'lucide-react';
+import { KeyRound, Mail, User } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
-import { Select, TextInput } from '../ui';
+import { TextInput } from '../ui';
 import { registerThunk } from './authSlice';
 import { useAuthDispatch } from './useRedux';
 import type { RegisterData } from './auth.types';
-
-const SECURITY_QUESTIONS = [
-    { value: "What was your first pet's name?", label: "What was your first pet's name?" },
-    { value: 'What city were you born in?', label: 'What city were you born in?' },
-    { value: 'What was your childhood nickname?', label: 'What was your childhood nickname?' },
-    { value: "What is your mother's maiden name?", label: "What is your mother's maiden name?" },
-    { value: 'What high school did you attend?', label: 'What high school did you attend?' },
-];
 
 export function Register() {
     const [loading, setLoading] = useState(false);
     const dispatch = useAuthDispatch();
     const navigate = useNavigate();
 
-    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<RegisterData>({
-        defaultValues: { username: '', email: '', password: '', confirmPassword: '', securityQuestion: '', securityAnswer: '' },
+    const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterData>({
+        defaultValues: { username: '', email: '', password: '', confirmPassword: '' },
     });
 
     const password = watch('password');
-    const securityQuestion = watch('securityQuestion');
 
     const onSubmit = async (data: RegisterData) => {
         setLoading(true);
         try {
             await (dispatch(registerThunk(data) as any)).unwrap();
-            navigate('/auth/login');
+            navigate('/');
         } catch (error) {
             console.error(error);
         } finally {
@@ -82,24 +73,6 @@ export function Register() {
                         })} />
                 </div>
 
-                <div className="auth-field">
-                    <div className="auth-field-head"><label>Security Question</label></div>
-                    <Select
-                        options={SECURITY_QUESTIONS}
-                        value={securityQuestion}
-                        onChange={(value) => value && setValue('securityQuestion', value, { shouldValidate: true })}
-                        placeholder="Choose a security question"
-                        error={errors.securityQuestion?.message}
-                        required
-                    />
-                </div>
-
-                <div className="auth-field">
-                    <div className="auth-field-head"><label htmlFor="securityAnswer">Security Answer</label></div>
-                    <TextInput id="securityAnswer" placeholder="Your answer" icon={<KeySquare size={15} />}
-                        error={errors.securityAnswer?.message}
-                        {...register('securityAnswer', { required: 'Security answer is required' })} />
-                </div>
 
                 <button type="submit" disabled={loading} className="auth-btn-primary">
                     {loading ? 'Creating account…' : 'Create Account'}

@@ -55,7 +55,7 @@ export default function Builder() {
 
     const isSaving = createForm.isPending || updateForm.isPending;
 
-    if (isEditMode && isLoading) {
+    if (isEditMode && (isLoading || (existingForm && !initialized))) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-canvas">
                 <div className="flex flex-col items-center gap-3">

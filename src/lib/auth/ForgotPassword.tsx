@@ -1,27 +1,25 @@
-import { KeyRound, KeySquare, User } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
 import { TextInput } from '../ui';
-import { changePasswordThunk } from './authSlice';
+import { resetPasswordThunk } from './authSlice';
 import { useAuthDispatch } from './useRedux';
-import type { ChangePasswordData } from './auth.types';
+import type { ResetPasswordData } from './auth.types';
 
 export function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const dispatch = useAuthDispatch();
     const navigate = useNavigate();
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<ChangePasswordData>({
-        defaultValues: { username: '', securityAnswer: '', newPassword: '', confirmPassword: '' },
+    const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordData>({
+        defaultValues: { email: '' },
     });
 
-    const newPassword = watch('newPassword');
-
-    const onSubmit = async (data: ChangePasswordData) => {
+    const onSubmit = async ({ email }: ResetPasswordData) => {
         setLoading(true);
         try {
-            await (dispatch(changePasswordThunk(data) as any)).unwrap();
+            await (dispatch(resetPasswordThunk(email) as any)).unwrap();
             navigate('/auth/login');
         } catch (error) {
             console.error(error);
@@ -33,45 +31,18 @@ export function ForgotPassword() {
     return (
         <>
             <h1>Reset password</h1>
-            <p className="auth-sub">Verify your identity to set a new password.</p>
+            <p className="auth-sub">Enter your email and we will send you a reset link.</p>
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="auth-field">
-                    <div className="auth-field-head"><label htmlFor="username">Username</label></div>
-                    <TextInput id="username" placeholder="Enter your username" icon={<User size={15} />}
-                        error={errors.username?.message}
-                        {...register('username', { required: 'Username is required' })} />
-                </div>
-
-                <div className="auth-field">
-                    <div className="auth-field-head"><label htmlFor="securityAnswer">Security Answer</label></div>
-                    <TextInput id="securityAnswer" placeholder="Your security answer" icon={<KeySquare size={15} />}
-                        error={errors.securityAnswer?.message}
-                        {...register('securityAnswer', { required: 'Security answer is required' })} />
-                </div>
-
-                <div className="auth-field">
-                    <div className="auth-field-head"><label htmlFor="newPassword">New Password</label></div>
-                    <TextInput id="newPassword" type="password" placeholder="Enter new password" icon={<KeyRound size={15} />}
-                        showPasswordToggle error={errors.newPassword?.message}
-                        {...register('newPassword', {
-                            required: 'New password is required',
-                            minLength: { value: 6, message: 'Password must be at least 6 characters' },
-                        })} />
-                </div>
-
-                <div className="auth-field">
-                    <div className="auth-field-head"><label htmlFor="confirmPassword">Confirm Password</label></div>
-                    <TextInput id="confirmPassword" type="password" placeholder="Confirm new password" icon={<KeyRound size={15} />}
-                        showPasswordToggle error={errors.confirmPassword?.message}
-                        {...register('confirmPassword', {
-                            required: 'Please confirm your password',
-                            validate: (value) => value === newPassword || "Passwords don't match",
-                        })} />
+                    <div className="auth-field-head"><label htmlFor="email">Email</label></div>
+                    <TextInput id="email" type="email" placeholder="Enter your email" icon={<Mail size={15} />}
+                        error={errors.email?.message}
+                        {...register('email', { required: 'Email is required' })} />
                 </div>
 
                 <button type="submit" disabled={loading} className="auth-btn-primary">
-                    {loading ? 'Resetting password…' : 'Reset Password'}
+                    {loading ? 'Sending…' : 'Send reset link'}
                 </button>
             </form>
 

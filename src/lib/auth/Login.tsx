@@ -1,12 +1,11 @@
-import { Lock, User } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { TextInput } from '../ui';
-import { loginThunk } from './authSlice';
+import { googleLoginThunk, loginThunk } from './authSlice';
 import { useAuthDispatch } from './useRedux';
 import type { LoginData } from './auth.types';
-import { CONFIG } from '../shared';
 
 export function Login() {
     const [loading, setLoading] = useState(false);
@@ -16,7 +15,7 @@ export function Login() {
     const redirectTo = searchParams.get('redirect') || '/';
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginData>({
-        defaultValues: { username: '', password: '' },
+        defaultValues: { email: '', password: '' },
     });
 
     const onSubmit = async (data: LoginData) => {
@@ -31,10 +30,13 @@ export function Login() {
         }
     };
 
-    const handleGoogleLogin = () => {
-        const backendUrl = CONFIG.API_URL;
-        const origin = window.location.origin;
-        window.location.href = `${backendUrl}/auth/google?origin=${encodeURIComponent(origin)}`;
+    const handleGoogleLogin = async () => {
+        try {
+            await (dispatch(googleLoginThunk() as any)).unwrap();
+            navigate(redirectTo, { replace: true });
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -57,14 +59,15 @@ export function Login() {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="auth-field">
                     <div className="auth-field-head">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="email">Email</label>
                     </div>
                     <TextInput
-                        id="username"
-                        placeholder="Enter your username"
-                        icon={<User size={15} />}
-                        error={errors.username?.message}
-                        {...register('username', { required: 'Username is required' })}
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        icon={<Mail size={15} />}
+                        error={errors.email?.message}
+                        {...register('email', { required: 'Email is required' })}
                     />
                 </div>
 

@@ -10,4 +10,3 @@ export * from './UserMenu';
 export * from './Login';
 export * from './Register';
 export * from './ForgotPassword';
-export * from './OAuthCallback';

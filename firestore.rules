@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /forms/{formId} {
+      allow get: if resource.data.isActive == true || isOwner(resource.data.createdBy);
+      allow list: if isOwner(resource.data.createdBy);
+      allow create: if isOwner(request.resource.data.createdBy);
+      allow update: if (isOwner(resource.data.createdBy) && request.resource.data.createdBy == resource.data.createdBy)
+        || (resource.data.isActive == true
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['responseCount'])
+            && request.resource.data.responseCount == resource.data.responseCount + 1);
+      allow delete: if isOwner(resource.data.createdBy);
+    }
+
+    match /responses/{responseId} {
+      allow create: if exists(/databases/$(database)/documents/forms/$(request.resource.data.formId))
+        && get(/databases/$(database)/documents/forms/$(request.resource.data.formId)).data.isActive == true
+        && request.resource.data.ownerId == get(/databases/$(database)/documents/forms/$(request.resource.data.formId)).data.createdBy
+        && request.resource.data.keys().hasOnly(['formId', 'ownerId', 'responses', 'userAgent', 'submittedAt'])
+        && request.resource.data.responses is map;
+      allow read, delete: if isOwner(resource.data.ownerId);
+    }
+  }
+}
